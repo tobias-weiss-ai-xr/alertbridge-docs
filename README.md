@@ -1,7 +1,8 @@
 # AlertBridge User Guide
 
-**Version:** 1.1.31  
-**Last Updated:** February 25, 2026
+**AlertBridge Version:** 1.1.31  
+**Document Version:** 1.1  
+**Last Updated:** October 3, 2026
 
 ---
 
@@ -103,7 +104,7 @@ Before using AlertBridge, ensure you have:
 
 ### Initial Setup Overview
 
-The setup process involves three main steps:
+The setup process involves four main steps:
 
 1. **Access the AlertBridge configuration page** in Jira
 2. **Generate a webhook token** for authentication
@@ -211,9 +212,9 @@ receivers:
     webhook_configs:
       - url: 'https://api.atlassian.com/webhook/alertbridge-webhook-xxxxxxxxxxxx'
         send_resolved: true
-        headers:
-          Authorization: 'Bearer a3f27b8c9e1d4f6a8b2c5d7e9f1a3b4c'
-          Content-Type: 'application/json'
+        http_config:
+          headers:
+            Authorization: 'Bearer a3f27b8c9e1d4f6a8b2c5d7e9f1a3b4c'
 ```
 
 3. Configure your alert routes to use this receiver:
@@ -535,6 +536,8 @@ alertname=HighCPU|service=api|severity=critical
 
 Two alerts with the same fingerprint update the same Jira issue, even if the ignored labels differ.
 
+**⚠️ Important:** If the payload includes a `fingerprint` field, AlertBridge uses that value directly instead of computing a hash from labels. Prometheus Alertmanager **always** includes a fingerprint calculated over **all** labels — so with genuine Alertmanager webhooks the ignore-labels setting has no effect, and frequently-changing labels (like `instance` or `pod`) will still create new issues. To deduplicate on selected labels with real Alertmanager payloads, the `fingerprint` field must be removed before the webhook reaches AlertBridge.
+
 #### 3. Issue Creation or Update
 
 **For FIRING alerts:**
@@ -763,8 +766,9 @@ Below are the current functional limitations. These are **planned as upcoming fe
    - Ensure your monitoring system sends consistent label keys
    - Avoid timestamps or random IDs in labels
 
-4. **Use provided fingerprint:**
-   - If your monitoring system provides a `fingerprint` field, AlertBridge uses it directly
+4. **Provided fingerprint overrides ignore labels:**
+   - If the payload contains a `fingerprint` field, AlertBridge uses it directly — your ignore-labels configuration then has no effect
+   - Prometheus Alertmanager always sends a fingerprint based on all labels; strip the field (e.g. via a forwarding proxy) if you rely on ignore-labels for deduplication
    - Ensure the fingerprint is consistent across alert firings
 
 ---
@@ -1035,7 +1039,7 @@ A: Configure "ignore label keys" to exclude labels that change frequently but do
 A: If Alertmanager sends a "resolved" webhook before a "firing" webhook, AlertBridge does nothing (no issue created).
 
 **Q: Can I manually resolve issues without waiting for alerts to clear?**  
-A: Yes, you can manually transition issues in Jira. AlertBridge will respect the manual state change. If the alert fires again, it will add a comment but not reopen the issue (unless you move it to a resolved state first).
+A: Yes, you can manually transition issues in Jira. If the alert fires again while the issue is in a resolved state, AlertBridge treats it like any auto-resolved issue: it attempts to reopen it and adds a comment.
 
 **Q: Do annotations affect deduplication?**  
 A: No, only labels affect the fingerprint. Annotations (summary, description) can change without creating a new issue.
@@ -1119,7 +1123,7 @@ If you encounter issues not covered in this guide:
 
 ---
 
-**Document Version:** 1.0  
+**Document Version:** 1.1  
 **AlertBridge Version:** 1.1.31  
-**Last Updated:** February 25, 2026
+**Last Updated:** October 3, 2026
 
