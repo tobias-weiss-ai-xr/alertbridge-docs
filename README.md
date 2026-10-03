@@ -148,7 +148,7 @@ Below the token section, you'll see the **Webhook URL**. This is the address you
 
 **Example Webhook URL:**
 ```
-https://api.atlassian.com/webhook/alertbridge-webhook-xxxxxxxxxxxx
+https://install-uuid.webtrigger.atlassian.app/public/webtrigger-url-uuid-xxxxxxxxxxxx
 ```
 
 Copy this URL - you'll need it when configuring your monitoring system.
@@ -210,7 +210,7 @@ AlertBridge works with any monitoring system that can send HTTP POST requests. B
 receivers:
   - name: 'jira-alertbridge'
     webhook_configs:
-      - url: 'https://api.atlassian.com/webhook/alertbridge-webhook-xxxxxxxxxxxx'
+      - url: 'https://install-uuid.webtrigger.atlassian.app/public/webtrigger-url-uuid-xxxxxxxxxxxx'
         send_resolved: true
         http_config:
           headers:
@@ -258,7 +258,7 @@ Any system that can send HTTP POST requests can integrate with AlertBridge. The 
 
 **Example using curl:**
 ```bash
-curl -X POST "https://api.atlassian.com/webhook/alertbridge-webhook-xxxxxxxxxxxx" \
+curl -X POST "https://install-uuid.webtrigger.atlassian.app/public/webtrigger-url-uuid-xxxxxxxxxxxx" \
   -H "Authorization: Bearer a3f27b8c9e1d4f6a8b2c5d7e9f1a3b4c" \
   -H "Content-Type: application/json" \
   -d '{
@@ -290,7 +290,7 @@ After configuration, test that everything works:
 4. Run the command in a terminal:
 
 ```bash
-curl -i -X POST "https://api.atlassian.com/webhook/alertbridge-webhook-xxxxxxxxxxxx" \
+curl -i -X POST "https://install-uuid.webtrigger.atlassian.app/public/webtrigger-url-uuid-xxxxxxxxxxxx" \
   -H "Authorization: Bearer a3f27b8c9e1d4f6a8b2c5d7e9f1a3b4c" \
   -H "Content-Type: application/json" \
   --data-binary '{
